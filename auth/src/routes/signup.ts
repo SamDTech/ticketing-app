@@ -1,5 +1,7 @@
 import { Router, Request, Response } from "express";
 import { body, validationResult } from "express-validator";
+import { DatabaseConnectionError } from "../errors/database-connection-error";
+import { RequestValidationError } from "../errors/request-Validation-Error";
 
 const router = Router();
 
@@ -13,17 +15,17 @@ router.post(
       .withMessage("Password must be between 4 and 20"),
   ],
   (req: Request, res: Response) => {
-    const errors = validationResult(req)
+    const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-       throw new Error('invalid email or password')
+      throw new RequestValidationError(errors.array());
     }
 
-    const { email, password } = req.body
+    const { email, password } = req.body;
 
-    console.log('creating a user')
-    throw new Error('Error connecting to database')
-    res.send({})
+    console.log("creating a user");
+    throw new DatabaseConnectionError();
+    res.send({});
   }
 );
 
