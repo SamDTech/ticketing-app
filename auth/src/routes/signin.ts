@@ -1,8 +1,10 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 
 const router = Router();
 
-router.post("/api/users/signin", (req, res) => {
+router.post("/api/users/signin", (req: Request, res: Response) => {
+
+  const {} = req.body
   res.send("signin");
 });
 
