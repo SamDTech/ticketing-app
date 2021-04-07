@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express";
-import { body, validationResult } from "express-validator";
-import jwt from 'jsonwebtoken'
+import { body } from "express-validator";
+import jwt from "jsonwebtoken";
 import { BadRequestError } from "../errors/bad-request-error";
-import { RequestValidationError } from "../errors/request-Validation-Error";
+import { validateRequest } from "../middlewares/validate-request";
 import { User } from "../models/user";
 
 const router = Router();
@@ -16,35 +16,32 @@ router.post(
       .isLength({ min: 4, max: 20 })
       .withMessage("Password must be between 4 and 20"),
   ],
- async (req: Request, res: Response) => {
-    const errors = validationResult(req);
+  validateRequest,
+  async (req: Request, res: Response) => {
+    const { email, password } = req.body;
 
-    if (!errors.isEmpty()) {
-      throw new RequestValidationError(errors.array());
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      throw new BadRequestError("Email in use");
     }
 
-   const { email, password } = req.body;
+    const user = User.build({ email, password });
 
-   const existingUser = await User.findOne({ email })
+    await user.save();
 
-   if (existingUser) {
-    throw new BadRequestError('Email in use')
-   }
+    // Generate json web token
+    const userJwt = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_KEY!
+    );
 
-   const user = User.build({ email, password })
+    // store it on the cookie session
+    req.session = {
+      jwt: userJwt,
+    };
 
-   await user.save()
-
-   // Generate json web token
-   const userJwt = jwt.sign({id: user.id, email: user.email}, process.env.JWT_KEY!  )
-
-
-   // store it on the cookie session
-   req.session = {
-     jwt: userJwt
-   }
-
-    res.status(201).send(user)
+    res.status(201).send(user);
   }
 );
 
