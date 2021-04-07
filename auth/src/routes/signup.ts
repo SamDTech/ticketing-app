@@ -36,7 +36,7 @@ router.post(
    await user.save()
 
    // Generate json web token
-   const userJwt = jwt.sign({id: user.id, email: user.email}, 'asdf' )
+   const userJwt = jwt.sign({id: user.id, email: user.email}, process.env.JWT_KEY!  )
 
 
    // store it on the cookie session
