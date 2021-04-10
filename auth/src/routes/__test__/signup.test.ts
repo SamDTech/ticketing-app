@@ -11,3 +11,28 @@ it("returns a 201 on successful signup", () => {
     })
     .expect(201);
 });
+
+it("returns a 400 with invalid email", () => {
+  return request(app)
+    .post("/api/users/signup")
+    .send({
+      email: "test.test",
+      password: "asjddkdk",
+    })
+    .expect(400);
+});
+
+it("returns a 400 with invalid password", () => {
+  return request(app)
+    .post("/api/users/signup")
+    .send({
+      email: "test@test.com",
+      password: "a",
+    })
+    .expect(400);
+});
+
+it("returns a 400 with missing email and password", async () => {
+  await request(app).post("/api/users/signup").send({email: 'test@test.com'}).expect(400);
+  await request(app).post("/api/users/signup").send({password: 'akskdkddd'}).expect(400);
+});
