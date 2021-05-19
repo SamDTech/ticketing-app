@@ -5,15 +5,16 @@ const start = async () => {
   if (!process.env.JWT_KEY) {
     throw new Error("JWT Key must be defined");
   }
-   if (!process.env.MONGO_URI) {
-    throw new Error("MONGO_URI must be defined");
+
+  if (!process.env.MONGO_URI) {
+    throw new Error("Mongo URI must be defined");
   }
   try {
     await mongoose.connect(process.env.MONGO_URI, {
       useCreateIndex: true,
       useNewUrlParser: true,
-      useUnifiedTopology: true,
       useFindAndModify: false,
+      useUnifiedTopology: true,
     });
     console.log("connected to mongodb");
   } catch (error) {
